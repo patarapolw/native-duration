@@ -1,5 +1,7 @@
 # native-duration
 
+[![npm version](https://badge.fury.io/js/native-duration.svg)](https://badge.fury.io/js/native-duration)
+
 JavaScript / TypeScript library to Calculate duration between two dates with zero dependencies (via Date object).
 
 ## Usage
