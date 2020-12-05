@@ -158,37 +158,39 @@ export function msecToString(
   return durationToString(since, now, opts);
 }
 
-export const addDate: Record<Unit, (d: Date, n: number) => Date> = {
-  ms: (d, n) => {
-    d.setMilliseconds(d.getMilliseconds() + n);
-    return new Date(d);
-  },
-  s: (d, n) => {
-    d.setSeconds(d.getSeconds() + n);
-    return new Date(d);
-  },
-  min: (d, n) => {
-    d.setMinutes(d.getMinutes() + n);
-    return new Date(d);
-  },
-  h: (d, n) => {
-    d.setHours(d.getHours() + n);
-    return new Date(d);
-  },
-  d: (d, n) => {
-    d.setDate(d.getDate() + n);
-    return new Date(d);
-  },
-  w: (d, n) => {
-    d.setDate(d.getDate() + n * 7);
-    return new Date(d);
-  },
-  mo: (d, n) => {
-    d.setMonth(d.getMonth() + n);
-    return new Date(d);
-  },
-  y: (d, n) => {
-    d.setFullYear(d.getFullYear() + n);
-    return new Date(d);
-  },
-};
+export function addDate(d: Date): Record<Unit, (n: number) => Date> {
+  return {
+    ms: (n) => {
+      d.setMilliseconds(d.getMilliseconds() + n);
+      return new Date(d);
+    },
+    s: (n) => {
+      d.setSeconds(d.getSeconds() + n);
+      return new Date(d);
+    },
+    min: (n) => {
+      d.setMinutes(d.getMinutes() + n);
+      return new Date(d);
+    },
+    h: (n) => {
+      d.setHours(d.getHours() + n);
+      return new Date(d);
+    },
+    d: (n) => {
+      d.setDate(d.getDate() + n);
+      return new Date(d);
+    },
+    w: (n) => {
+      d.setDate(d.getDate() + n * 7);
+      return new Date(d);
+    },
+    mo: (n) => {
+      d.setMonth(d.getMonth() + n);
+      return new Date(d);
+    },
+    y: (n) => {
+      d.setFullYear(d.getFullYear() + n);
+      return new Date(d);
+    },
+  };
+}

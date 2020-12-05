@@ -20,6 +20,7 @@
   "files": [
     "lib",
     "src",
+    "!src/**/*.spec.ts",
     "tsconfig.json"
   ],
   "scripts": {

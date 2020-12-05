@@ -51,7 +51,7 @@ Array(7)
       it("duration must be within +/- 1 day and within 5% error", () => {
         inp.map(({ since, map, msec }) => {
           const calculated = Object.entries(map.d).reduce(
-            (prev, [k, v]) => addDate[k as Unit](prev, -v),
+            (prev, [k, v]) => addDate(prev)[k as Unit](-v),
             new Date(now)
           );
 
