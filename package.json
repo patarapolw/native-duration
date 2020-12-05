@@ -1,6 +1,6 @@
 {
   "name": "native-duration",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Calculate duration between two dates with zero dependencies (via Date object)",
   "keywords": [
     "duration",
@@ -22,13 +22,18 @@
     "src"
   ],
   "scripts": {
-    "prepare": "pnpm build",
     "build": "rm -rf ./lib && tsc -P tsconfig.build.json",
-    "test": "ts-node **/*.spec.ts",
+    "mocha": "ts-mocha",
+    "prepare": "pnpm build",
+    "test": "ts-mocha src/**/*.spec.ts",
     "ts": "ts-node"
   },
   "devDependencies": {
+    "@types/assert": "^1.5.2",
+    "@types/mocha": "^8.0.4",
+    "mocha": "^8.2.1",
     "prettier": "^2.2.1",
+    "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.0",
     "typescript": "^4.1.2"
   }

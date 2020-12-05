@@ -1,39 +1,4 @@
-import { Unit, durationToRecord, durationToString } from ".";
-
-const addDate: Record<Unit, (d: Date, n: number) => Date> = {
-  ms: (d, n) => {
-    d.setMilliseconds(d.getMilliseconds() + n);
-    return new Date(d);
-  },
-  s: (d, n) => {
-    d.setSeconds(d.getSeconds() + n);
-    return new Date(d);
-  },
-  min: (d, n) => {
-    d.setMinutes(d.getMinutes() + n);
-    return new Date(d);
-  },
-  h: (d, n) => {
-    d.setHours(d.getHours() + n);
-    return new Date(d);
-  },
-  d: (d, n) => {
-    d.setDate(d.getDate() + n);
-    return new Date(d);
-  },
-  w: (d, n) => {
-    d.setDate(d.getDate() + n * 7);
-    return new Date(d);
-  },
-  mo: (d, n) => {
-    d.setMonth(d.getMonth() + n);
-    return new Date(d);
-  },
-  y: (d, n) => {
-    d.setFullYear(d.getFullYear() + n);
-    return new Date(d);
-  },
-};
+import { Unit, addDate, durationToRecord, msecToString } from ".";
 
 const maxAcceptable: Partial<Record<Unit, number>> = {
   ms: 1000,
@@ -47,44 +12,62 @@ const maxAcceptable: Partial<Record<Unit, number>> = {
 
 const now = new Date();
 
-/**
- * 10k repeats
- */
-Array(10000)
+Array(7)
   .fill(null)
-  .map(() => {
+  .map((_, i) => {
     /**
-     * From minutes to about 20 years' duration
+     * From minutes to about 3 years' duration
      */
-    Array.from(Array(8), (_, i) => (Math.random() + 0.1) * 10 ** (i + 5)).map((n) => {
-      const to = new Date(+now + n);
-      console.log(
-        durationToString(now, to, {
-          sign: false,
-          trim: 2,
-        })
-      );
+    describe(msecToString(10 ** (i + 5)), () => {
+      /**
+       * 10k repeats
+       */
+      const inp = Array(10 ** 4)
+        .fill(null)
+        .map(() => {
+          const msec = (Math.random() + 0.5) * 10 ** (i + 5);
+          const since = new Date(+now - msec);
+          const map = durationToRecord(since, now);
 
-      const map = durationToRecord(now, to);
+          return {
+            msec,
+            since,
+            map,
+          };
+        });
 
-      Object.entries(map.d).map(([k, v]) => {
-        const max = maxAcceptable[k as Unit];
-        if (max && v > max) {
-          console.error({ k, v, map });
-          throw new Error("Some value exceeded the limit");
-        }
+      it("no value should exceed certain limits", () => {
+        inp.map(({ map }) => {
+          Object.entries(map.d).map(([k, v]) => {
+            const max = maxAcceptable[k as Unit];
+            if (max && v > max) {
+              console.error({ k, v, map });
+              throw new Error("Some value exceeded the limit");
+            }
+          });
+        });
       });
 
-      const calculated = Object.entries(map.d).reduce(
-        (prev, [k, v]) => addDate[k as Unit](prev, v),
-        new Date(now)
-      );
+      it("duration must be within +/- 1 day and within 5% error", () => {
+        inp.map(({ since, map, msec }) => {
+          const calculated = Object.entries(map.d).reduce(
+            (prev, [k, v]) => addDate[k as Unit](prev, -v),
+            new Date(now)
+          );
 
-      const ratio = (+calculated - +now) / n;
+          const ratio = (+now - +calculated) / msec;
 
-      if (ratio < 0.95 || ratio > 1.05) {
-        console.error({ now, to, calculated, map });
-        throw new Error("Duration might be miscalculated (CI 95%)");
-      }
+          if (
+            !(ratio > 0.95 && ratio < 1.05) ||
+            !(
+              since >= new Date(+calculated - 1000 * 60 * 60 * 24) &&
+              since <= new Date(+calculated + 1000 * 60 * 60 * 24)
+            )
+          ) {
+            console.error({ since, calculated, now, map, ratio });
+            throw new Error("Duration might be miscalculated");
+          }
+        });
+      });
     });
   });

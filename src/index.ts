@@ -30,10 +30,10 @@ export function durationToRecord(
 
       if (upper) {
         while (a < 0) {
-          a += upper.inc(this.dates[0]);
-
           upper.set(this.dates[1], upper.get(this.dates[1]) - 1);
           this.dates[1] = new Date(this.dates[1]);
+
+          a += upper.inc(this.dates[1]);
         }
       }
 
@@ -147,3 +147,48 @@ export function durationToString(
 
   return str;
 }
+
+export function msecToString(
+  msec: number,
+  opts: IDurationOptions = {}
+): string {
+  const now = new Date();
+  const since = new Date(+now - msec);
+
+  return durationToString(since, now, opts);
+}
+
+export const addDate: Record<Unit, (d: Date, n: number) => Date> = {
+  ms: (d, n) => {
+    d.setMilliseconds(d.getMilliseconds() + n);
+    return new Date(d);
+  },
+  s: (d, n) => {
+    d.setSeconds(d.getSeconds() + n);
+    return new Date(d);
+  },
+  min: (d, n) => {
+    d.setMinutes(d.getMinutes() + n);
+    return new Date(d);
+  },
+  h: (d, n) => {
+    d.setHours(d.getHours() + n);
+    return new Date(d);
+  },
+  d: (d, n) => {
+    d.setDate(d.getDate() + n);
+    return new Date(d);
+  },
+  w: (d, n) => {
+    d.setDate(d.getDate() + n * 7);
+    return new Date(d);
+  },
+  mo: (d, n) => {
+    d.setMonth(d.getMonth() + n);
+    return new Date(d);
+  },
+  y: (d, n) => {
+    d.setFullYear(d.getFullYear() + n);
+    return new Date(d);
+  },
+};

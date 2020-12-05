@@ -9,4 +9,6 @@ export interface IDurationOptions {
     unit?: Partial<Record<Unit, string>>;
 }
 export declare function durationToString(from: Date, to: Date, { sign, trim, unit }?: IDurationOptions): string;
+export declare function msecToString(msec: number, opts?: IDurationOptions): string;
+export declare const addDate: Record<Unit, (d: Date, n: number) => Date>;
 //# sourceMappingURL=index.d.ts.map
