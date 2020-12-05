@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "prepare": "pnpm build",
-    "build": "tsc -P tsconfig.build.json",
+    "build": "rm -rf ./lib && tsc -P tsconfig.build.json",
     "test": "ts-node **/*.spec.ts",
     "ts": "ts-node"
   },
