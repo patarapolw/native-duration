@@ -50,7 +50,7 @@ const now = new Date();
 Array(10000)
   .fill(null)
   .map(() => {
-    Array.from(Array(10), (_, i) => Math.random() * 10 ** (i + 3)).map((n) => {
+    Array.from(Array(8), (_, i) => Math.random() * 10 ** (i + 5)).map((n) => {
       const to = new Date(+now + n);
       console.log(
         durationToString(now, to, {
@@ -65,7 +65,7 @@ Array(10000)
         const max = maxAcceptable[k as Unit];
         if (max && v > max) {
           console.error({ k, v, map });
-          throw new Error("Exceeded");
+          throw new Error("Some value exceeded the limit");
         }
       });
 
@@ -74,9 +74,11 @@ Array(10000)
         new Date(now)
       );
 
-      if (to < addDate.d(calculated, -1) || to > addDate.d(calculated, 1)) {
+      const ratio = (+calculated - +now) / n;
+
+      if (ratio < 0.95 || ratio > 1.05) {
         console.error({ now, to, calculated, map });
-        throw new Error("Mismatched");
+        throw new Error("Duration might be miscalculated (CI 95%)");
       }
     });
   });
