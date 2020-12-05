@@ -5,7 +5,7 @@ const maxAcceptable: Partial<Record<Unit, number>> = {
   s: 60,
   min: 60,
   h: 24,
-  d: 31,
+  d: 7,
   w: 4,
   mo: 12,
 };
