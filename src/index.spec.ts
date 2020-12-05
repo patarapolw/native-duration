@@ -47,10 +47,16 @@ const maxAcceptable: Partial<Record<Unit, number>> = {
 
 const now = new Date();
 
+/**
+ * 10k repeats
+ */
 Array(10000)
   .fill(null)
   .map(() => {
-    Array.from(Array(8), (_, i) => Math.random() * 10 ** (i + 5)).map((n) => {
+    /**
+     * From minutes to about 20 years' duration
+     */
+    Array.from(Array(8), (_, i) => (Math.random() + 0.1) * 10 ** (i + 5)).map((n) => {
       const to = new Date(+now + n);
       console.log(
         durationToString(now, to, {
