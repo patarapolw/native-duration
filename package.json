@@ -1,6 +1,6 @@
 {
   "name": "native-duration",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Calculate duration between two dates with zero dependencies (via Date object)",
   "keywords": [
     "duration",
@@ -19,7 +19,8 @@
   "types": "lib/index.d.ts",
   "files": [
     "lib",
-    "src"
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
     "build": "rm -rf ./lib && tsc -P tsconfig.build.json",
