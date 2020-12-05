@@ -142,7 +142,7 @@ export function durationToString(
     .join(" ");
 
   if (sign) {
-    return sign + str;
+    return m.sign + str;
   }
 
   return str;
