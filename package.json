@@ -1,0 +1,32 @@
+{
+  "name": "native-duration",
+  "version": "0.1.0",
+  "description": "Calculate duration between two dates with zero dependencies (via Date object)",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": "github:patarapolw/native-duration",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -P tsconfig.build.json",
+    "test": "ts-node **/*.spec.ts"
+  },
+  "keywords": [
+    "duration",
+    "time",
+    "timedelta",
+    "date"
+  ],
+  "author": {
+    "email": "polv@polv.cc",
+    "name": "Pacharapol Withayasakpunt",
+    "url": "https://www.polv.cc"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^9.1.0",
+    "typescript": "^4.1.2"
+  }
+}
