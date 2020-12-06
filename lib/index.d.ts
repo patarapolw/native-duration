@@ -1,5 +1,8 @@
 export declare type DurationUnit = "ms" | "s" | "min" | "h" | "d" | "w" | "mo" | "y";
 export interface IDurationOptions {
+    /**
+     * @default true
+     */
     sign?: boolean;
     trim?: number;
     unit?: Partial<Record<DurationUnit, string>>;
@@ -7,7 +10,7 @@ export interface IDurationOptions {
 export declare class Duration {
     from: Date;
     to: Date;
-    sign: "+" | "-";
+    sign: "+" | "-" | "";
     ms: number;
     s: number;
     min: number;
@@ -21,7 +24,7 @@ export declare class Duration {
      * @internal
      */
     private dates;
-    static fromMillsecond(msec: number, to?: Date): Duration;
+    static of(msec: number): Duration;
     constructor(from: Date, to: Date);
     toString({ sign, trim, unit }?: IDurationOptions): string;
     /**

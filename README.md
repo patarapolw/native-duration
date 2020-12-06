@@ -11,7 +11,7 @@ import Duration from "native-duration";
 
 const now = new Date();
 
-console.log(Duration.fromMillisecond(10 ** 9).toString());
+console.log(Duration.of(10 ** 9).toString());
 // 1w 4d 13h 46min 40s
 ```
 
@@ -25,7 +25,7 @@ Of course, you can easily use it in any website, without Node.js, thanks to UNPK
 
   const now = new Date();
 
-  document.getElementById("mil-secs").innerText = Duration.fromMillisecond(
+  document.getElementById("mil-secs").innerText = Duration.of(
     10 ** 9
   ).toString();
 </script>

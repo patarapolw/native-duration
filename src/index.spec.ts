@@ -11,63 +11,93 @@ const maxAcceptable: Partial<Record<DurationUnit, number>> = {
 };
 
 const now = new Date();
+const REPEAT = 1000;
+const isDurationExact = true;
 
-Array(7)
+Array(8)
   .fill(null)
   .map((_, i) => {
     /**
-     * From minutes to about 3 years' duration
+     * From minutes to about 30 years' duration
      */
-    describe(Duration.fromMillsecond(10 ** (i + 5)).toString(), () => {
-      /**
-       * 10k repeats
-       */
-      const inp = Array(10 ** 4)
+    describe(`${Duration.of(10 ** (i + 5))} +/- 50%`, () => {
+      const inp = Array(REPEAT)
         .fill(null)
         .map(() => {
           const msec = (Math.random() + 0.5) * 10 ** (i + 5);
           const since = new Date(+now - msec);
-          const map = new Duration(since, now);
+          const duration = new Duration(since, now);
 
           return {
             msec,
             since,
-            map,
+            duration,
           };
         });
 
       it("no value should exceed certain limits", () => {
-        inp.map(({ map }) => {
-          map.order.map(([k, v]) => {
+        let missed = 0;
+
+        inp.map(({ duration }) => {
+          duration.order.map(([k, v]) => {
             const max = maxAcceptable[k];
             if (max && v > max) {
-              console.error({ k, v, map });
-              throw new Error("Some value exceeded the limit");
+              console.error({ k, v, duration: duration.toString() });
+              missed++;
             }
           });
         });
-      });
 
-      it("duration must be within +/- 1 day and within 5% error", () => {
-        inp.map(({ since, map, msec }) => {
-          const calculated = map.order.reduce(
-            (prev, [k, v]) => addDate(prev)[k](-v),
-            new Date(now)
+        if (missed) {
+          throw new Error(
+            `Some value exceeded the limit: ${missed.toLocaleString()} / ${REPEAT.toLocaleString()}`
           );
-
-          const ratio = (+now - +calculated) / msec;
-
-          if (
-            !(ratio > 0.95 && ratio < 1.05) ||
-            !(
-              since >= new Date(+calculated - 1000 * 60 * 60 * 24) &&
-              since <= new Date(+calculated + 1000 * 60 * 60 * 24)
-            )
-          ) {
-            console.error({ since, calculated, now, map, ratio });
-            throw new Error("Duration might be miscalculated");
-          }
-        });
+        }
       });
+
+      it(
+        isDurationExact
+          ? "duration is precise"
+          : "duration must be within +/- 1 day and within 5% error",
+        () => {
+          let missed = 0;
+
+          inp.map(({ since, duration, msec }) => {
+            const calculated = duration.order.reduce(
+              (prev, [k, v]) => addDate(prev)[k](-v),
+              new Date(now)
+            );
+
+            const ratio = (+now - +calculated) / msec;
+
+            if (
+              isDurationExact
+                ? since.toISOString() !== calculated.toISOString()
+                : !(
+                    ratio > 0.95 &&
+                    ratio < 1.05 &&
+                    since >= new Date(+calculated - 1000 * 60 * 60 * 24) &&
+                    since <= new Date(+calculated + 1000 * 60 * 60 * 24)
+                  )
+            ) {
+              console.error({
+                since,
+                calculated,
+                difference: new Duration(since, calculated).toString(),
+                now,
+                duration: duration.toString(),
+                error: `${(ratio * 100 - 100).toPrecision(3)}%`,
+              });
+              missed++;
+            }
+          });
+
+          if (missed) {
+            throw new Error(
+              `Duration might be miscalculated: ${missed.toLocaleString()} / ${REPEAT.toLocaleString()}`
+            );
+          }
+        }
+      );
     });
   });

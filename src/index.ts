@@ -1,13 +1,16 @@
 export type DurationUnit = "ms" | "s" | "min" | "h" | "d" | "w" | "mo" | "y";
 
 export interface IDurationOptions {
+  /**
+   * @default true
+   */
   sign?: boolean;
   trim?: number;
   unit?: Partial<Record<DurationUnit, string>>;
 }
 
 export class Duration {
-  sign: "+" | "-" = "+";
+  sign: "+" | "-" | "" = "+";
 
   ms: number;
   s: number;
@@ -36,8 +39,12 @@ export class Duration {
    */
   private dates: [Date, Date] = [new Date(this.from), new Date(this.to)];
 
-  static fromMillsecond(msec: number, to = new Date()) {
-    return new this(new Date(+to - msec), to);
+  static of(msec: number) {
+    const to = new Date();
+    const output = new this(new Date(+to - msec), to);
+    output.sign = "";
+
+    return output;
   }
 
   constructor(public from: Date, public to: Date) {
@@ -113,7 +120,7 @@ export class Duration {
     this.y = this.parse((d) => d.getFullYear());
   }
 
-  toString({ sign, trim, unit = {} }: IDurationOptions = {}) {
+  toString({ sign = true, trim, unit = {} }: IDurationOptions = {}) {
     const str = this.order
       .filter(([, v]) => v)
       .reverse()
