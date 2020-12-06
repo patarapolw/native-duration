@@ -7,16 +7,11 @@ JavaScript / TypeScript library to Calculate duration between two dates with zer
 ## Usage
 
 ```ts
-import { durationToString } from 'native-duration'
+import Duration from "native-duration";
 
-const now = new Date()
+const now = new Date();
 
-console.log(
-  durationToString(
-    now,
-    new Date(+now + 10 ** 9)
-  )
-)
+console.log(Duration.fromMillisecond(10 ** 9).toString());
 // 1w 4d 13h 46min 40s
 ```
 
@@ -26,14 +21,13 @@ Of course, you can easily use it in any website, without Node.js, thanks to UNPK
 <div id="mil-secs"></div>
 
 <script type="module">
-import { durationToString } from 'https://unpkg.com/native-duration'
+  import Duration from "https://unpkg.com/native-duration";
 
-const now = new Date()
+  const now = new Date();
 
-document.getElementById('mil-secs').innerText = durationToString(
-  now,
-  new Date(+now + 10 ** 9)
-)
+  document.getElementById("mil-secs").innerText = Duration.fromMillisecond(
+    10 ** 9
+  ).toString();
 </script>
 ```
 

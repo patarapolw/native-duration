@@ -1,14 +1,34 @@
-export declare type Unit = "ms" | "s" | "min" | "h" | "d" | "w" | "mo" | "y";
-export declare function durationToRecord(from: Date, to: Date): {
-    sign: string;
-    d: Record<Unit, number>;
-};
+export declare type DurationUnit = "ms" | "s" | "min" | "h" | "d" | "w" | "mo" | "y";
 export interface IDurationOptions {
     sign?: boolean;
     trim?: number;
-    unit?: Partial<Record<Unit, string>>;
+    unit?: Partial<Record<DurationUnit, string>>;
 }
-export declare function durationToString(from: Date, to: Date, { sign, trim, unit }?: IDurationOptions): string;
-export declare function msecToString(msec: number, opts?: IDurationOptions): string;
-export declare function addDate(d: Date): Record<Unit, (n: number) => Date>;
+export declare class Duration {
+    from: Date;
+    to: Date;
+    sign: "+" | "-";
+    ms: number;
+    s: number;
+    min: number;
+    h: number;
+    d: number;
+    w: number;
+    mo: number;
+    y: number;
+    get order(): [DurationUnit, number][];
+    /**
+     * @internal
+     */
+    private dates;
+    static fromMillsecond(msec: number, to?: Date): Duration;
+    constructor(from: Date, to: Date);
+    toString({ sign, trim, unit }?: IDurationOptions): string;
+    /**
+     * @internal
+     */
+    private parse;
+}
+export declare function addDate(d: Date): Record<DurationUnit, (n: number) => Date>;
+export default Duration;
 //# sourceMappingURL=index.d.ts.map

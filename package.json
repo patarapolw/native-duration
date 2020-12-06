@@ -1,12 +1,14 @@
 {
   "name": "native-duration",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Calculate duration between two dates with zero dependencies (via Date object)",
   "keywords": [
     "duration",
+    "humanize-duration",
     "time",
     "timedelta",
-    "date"
+    "date",
+    "datetime"
   ],
   "repository": "github:patarapolw/native-duration",
   "license": "MIT",
@@ -25,10 +27,9 @@
   ],
   "scripts": {
     "build": "rm -rf ./lib && tsc -P tsconfig.build.json",
-    "mocha": "ts-mocha",
     "prepare": "pnpm build",
     "test": "ts-mocha src/**/*.spec.ts",
-    "ts": "ts-node"
+    "test-log": "pnpm test -- 2>&1 | tee mocha.log"
   },
   "devDependencies": {
     "@types/assert": "^1.5.2",

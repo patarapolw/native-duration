@@ -1,6 +1,6 @@
-import { Unit, addDate, durationToRecord, msecToString } from ".";
+import Duration, { DurationUnit, addDate } from ".";
 
-const maxAcceptable: Partial<Record<Unit, number>> = {
+const maxAcceptable: Partial<Record<DurationUnit, number>> = {
   ms: 1000,
   s: 60,
   min: 60,
@@ -18,7 +18,7 @@ Array(7)
     /**
      * From minutes to about 3 years' duration
      */
-    describe(msecToString(10 ** (i + 5)), () => {
+    describe(Duration.fromMillsecond(10 ** (i + 5)).toString(), () => {
       /**
        * 10k repeats
        */
@@ -27,7 +27,7 @@ Array(7)
         .map(() => {
           const msec = (Math.random() + 0.5) * 10 ** (i + 5);
           const since = new Date(+now - msec);
-          const map = durationToRecord(since, now);
+          const map = new Duration(since, now);
 
           return {
             msec,
@@ -38,8 +38,8 @@ Array(7)
 
       it("no value should exceed certain limits", () => {
         inp.map(({ map }) => {
-          Object.entries(map.d).map(([k, v]) => {
-            const max = maxAcceptable[k as Unit];
+          map.order.map(([k, v]) => {
+            const max = maxAcceptable[k];
             if (max && v > max) {
               console.error({ k, v, map });
               throw new Error("Some value exceeded the limit");
@@ -50,8 +50,8 @@ Array(7)
 
       it("duration must be within +/- 1 day and within 5% error", () => {
         inp.map(({ since, map, msec }) => {
-          const calculated = Object.entries(map.d).reduce(
-            (prev, [k, v]) => addDate(prev)[k as Unit](-v),
+          const calculated = map.order.reduce(
+            (prev, [k, v]) => addDate(prev)[k](-v),
             new Date(now)
           );
 
