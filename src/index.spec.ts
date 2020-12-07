@@ -39,7 +39,7 @@ Array(8)
         let missed = 0;
 
         inp.map(({ duration }) => {
-          duration.order.map(([k, v]) => {
+          duration.toOrderedDict().map(([k, v]) => {
             const max = maxAcceptable[k];
             if (max && v > max) {
               console.error({ k, v, duration: duration.toString() });
@@ -63,10 +63,9 @@ Array(8)
           let missed = 0;
 
           inp.map(({ since, duration, msec }) => {
-            const calculated = duration.order.reduce(
-              (prev, [k, v]) => addDate(prev)[k](-v),
-              new Date(now)
-            );
+            const calculated = duration
+              .toOrderedDict()
+              .reduce((prev, [k, v]) => addDate(prev)[k](-v), new Date(now));
 
             const ratio = (+now - +calculated) / msec;
 

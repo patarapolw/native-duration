@@ -1,10 +1,23 @@
+/**
+ * Possible duration units in this parser
+ */
 export declare type DurationUnit = "ms" | "s" | "min" | "h" | "d" | "w" | "mo" | "y";
 export interface IDurationOptions {
     /**
      * @default true
      */
     sign?: boolean;
-    trim?: number;
+    /**
+     * Number of units plus subunits
+     */
+    granularity?: number;
+    /**
+     * Number of max units shown
+     */
+    maxUnit?: number;
+    /**
+     * Custom naming for units
+     */
     unit?: Partial<Record<DurationUnit, string>>;
 }
 export declare class Duration {
@@ -19,19 +32,16 @@ export declare class Duration {
     w: number;
     mo: number;
     y: number;
-    get order(): [DurationUnit, number][];
-    /**
-     * @internal
-     */
-    private dates;
+    private _dates;
     static of(msec: number): Duration;
     constructor(from: Date, to: Date);
-    toString({ sign, trim, unit }?: IDurationOptions): string;
-    /**
-     * @internal
-     */
-    private parse;
+    toOrderedDict(): [DurationUnit, number][];
+    toString({ sign, granularity, maxUnit, unit, }?: IDurationOptions): string;
+    private _parse;
 }
+/**
+ * Date adding functions
+ */
 export declare function addDate(d: Date): Record<DurationUnit, (n: number) => Date>;
 export default Duration;
 //# sourceMappingURL=index.d.ts.map

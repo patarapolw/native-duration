@@ -1,3 +1,6 @@
+/**
+ * Possible duration units in this parser
+ */
 export type DurationUnit = "ms" | "s" | "min" | "h" | "d" | "w" | "mo" | "y";
 
 export interface IDurationOptions {
@@ -5,7 +8,17 @@ export interface IDurationOptions {
    * @default true
    */
   sign?: boolean;
-  trim?: number;
+  /**
+   * Number of units plus subunits
+   */
+  granularity?: number;
+  /**
+   * Number of max units shown
+   */
+  maxUnit?: number;
+  /**
+   * Custom naming for units
+   */
   unit?: Partial<Record<DurationUnit, string>>;
 }
 
@@ -21,23 +34,7 @@ export class Duration {
   mo: number;
   y: number;
 
-  get order(): [DurationUnit, number][] {
-    return [
-      ["ms", this.ms],
-      ["s", this.s],
-      ["min", this.min],
-      ["h", this.h],
-      ["d", this.d],
-      ["w", this.w],
-      ["mo", this.mo],
-      ["y", this.y],
-    ];
-  }
-
-  /**
-   * @internal
-   */
-  private dates: [Date, Date] = [new Date(this.from), new Date(this.to)];
+  private _dates: [Date, Date] = [new Date(this.from), new Date(this.to)];
 
   static of(msec: number) {
     const to = new Date();
@@ -50,34 +47,34 @@ export class Duration {
   constructor(public from: Date, public to: Date) {
     if (from > to) {
       this.sign = "-";
-      this.dates = this.dates.reverse() as [Date, Date];
+      this._dates = this._dates.reverse() as [Date, Date];
     }
 
-    this.ms = this.parse((d) => d.getMilliseconds(), {
+    this.ms = this._parse((d) => d.getMilliseconds(), {
       get: (d) => d.getSeconds(),
       set: (d, v) => d.setSeconds(v),
       inc: () => 1000,
     });
 
-    this.s = this.parse((d) => d.getSeconds(), {
+    this.s = this._parse((d) => d.getSeconds(), {
       get: (d) => d.getMinutes(),
       set: (d, v) => d.setMinutes(v),
       inc: () => 60,
     });
 
-    this.min = this.parse((d) => d.getMinutes(), {
+    this.min = this._parse((d) => d.getMinutes(), {
       get: (d) => d.getHours(),
       set: (d, v) => d.setHours(v),
       inc: () => 60,
     });
 
-    this.h = this.parse((d) => d.getHours(), {
+    this.h = this._parse((d) => d.getHours(), {
       get: (d) => d.getDate(),
       set: (d, v) => d.setDate(v),
       inc: () => 24,
     });
 
-    this.d = this.parse((d) => d.getDate(), {
+    this.d = this._parse((d) => d.getDate(), {
       get: (d) => d.getMonth(),
       set: (d, v) => d.setMonth(v),
       inc: (d) => {
@@ -111,20 +108,40 @@ export class Duration {
     this.w = Math.floor(this.d / 7);
     this.d = this.d % 7;
 
-    this.mo = this.parse((d) => d.getMonth(), {
+    this.mo = this._parse((d) => d.getMonth(), {
       get: (d) => d.getFullYear(),
       set: (d, v) => d.setFullYear(v),
       inc: () => 12,
     });
 
-    this.y = this.parse((d) => d.getFullYear());
+    this.y = this._parse((d) => d.getFullYear());
   }
 
-  toString({ sign = true, trim, unit = {} }: IDurationOptions = {}) {
-    const str = this.order
-      .filter(([, v]) => v)
+  toOrderedDict(): [DurationUnit, number][] {
+    return [
+      ["ms", this.ms],
+      ["s", this.s],
+      ["min", this.min],
+      ["h", this.h],
+      ["d", this.d],
+      ["w", this.w],
+      ["mo", this.mo],
+      ["y", this.y],
+    ];
+  }
+
+  toString({
+    sign = true,
+    granularity,
+    maxUnit,
+    unit = {},
+  }: IDurationOptions = {}) {
+    const filteredDict = this.toOrderedDict().filter(([, v]) => v);
+
+    const str = filteredDict
+      .slice(granularity ? filteredDict.length - granularity : 0)
       .reverse()
-      .slice(0, trim)
+      .slice(0, maxUnit)
       .map(([k, v]) => `${v.toLocaleString()}${unit[k] || k}`)
       .join(" ");
 
@@ -135,10 +152,7 @@ export class Duration {
     return str;
   }
 
-  /**
-   * @internal
-   */
-  private parse(
+  private _parse(
     current: (d: Date) => number,
     upper?: {
       get: (d: Date) => number;
@@ -146,14 +160,14 @@ export class Duration {
       inc: (d: Date) => number;
     }
   ) {
-    let a = current(this.dates[1]) - current(this.dates[0]);
+    let a = current(this._dates[1]) - current(this._dates[0]);
 
     if (upper) {
       while (a < 0) {
-        upper.set(this.dates[1], upper.get(this.dates[1]) - 1);
-        this.dates[1] = new Date(this.dates[1]);
+        upper.set(this._dates[1], upper.get(this._dates[1]) - 1);
+        this._dates[1] = new Date(this._dates[1]);
 
-        a += upper.inc(this.dates[1]);
+        a += upper.inc(this._dates[1]);
       }
     }
 
@@ -161,6 +175,9 @@ export class Duration {
   }
 }
 
+/**
+ * Date adding functions
+ */
 export function addDate(d: Date): Record<DurationUnit, (n: number) => Date> {
   return {
     ms: (n) => {
