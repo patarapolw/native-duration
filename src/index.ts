@@ -23,19 +23,49 @@ export interface IDurationOptions {
 }
 
 export class Duration {
+  /**
+   * Sign in front of the output toString()
+   */
   sign: "+" | "-" | "" = "+";
 
+  /**
+   * Milliseconds
+   */
   ms: number;
+  /**
+   * Seconds
+   */
   s: number;
+  /**
+   * Minutes
+   */
   min: number;
+  /**
+   * Hours
+   */
   h: number;
+  /**
+   * Days
+   */
   d: number;
+  /**
+   * Weeks
+   */
   w: number;
+  /**
+   * Months
+   */
   mo: number;
+  /**
+   * Years
+   */
   y: number;
 
   private _dates: [Date, Date] = [new Date(this.from), new Date(this.to)];
 
+  /**
+   * Parse milliseconds (i.e. epoch) to Duration, based on before present time
+   */
   static of(msec: number) {
     const to = new Date();
     const output = new this(new Date(+to - msec), to);
@@ -44,7 +74,16 @@ export class Duration {
     return output;
   }
 
-  constructor(public from: Date, public to: Date) {
+  constructor(
+    /**
+     * Starting Date
+     */
+    public from: Date,
+    /**
+     * Ending date
+     */
+    public to: Date
+  ) {
     if (from > to) {
       this.sign = "-";
       this._dates = this._dates.reverse() as [Date, Date];
@@ -117,6 +156,9 @@ export class Duration {
     this.y = this._parse((d) => d.getFullYear());
   }
 
+  /**
+   * To JSON-serializable OrderedDict
+   */
   toOrderedDict(): [DurationUnit, number][] {
     return [
       ["ms", this.ms],
@@ -130,6 +172,11 @@ export class Duration {
     ];
   }
 
+  /**
+   * To String
+   *
+   * Works with `${duration}` also
+   */
   toString({
     sign = true,
     granularity,
@@ -180,34 +227,58 @@ export class Duration {
  */
 export function addDate(d: Date): Record<DurationUnit, (n: number) => Date> {
   return {
+    /**
+     * Milliseconds
+     */
     ms: (n) => {
       d.setMilliseconds(d.getMilliseconds() + n);
       return new Date(d);
     },
+    /**
+     * Seconds
+     */
     s: (n) => {
       d.setSeconds(d.getSeconds() + n);
       return new Date(d);
     },
+    /**
+     * Minutes
+     */
     min: (n) => {
       d.setMinutes(d.getMinutes() + n);
       return new Date(d);
     },
+    /**
+     * Hours
+     */
     h: (n) => {
       d.setHours(d.getHours() + n);
       return new Date(d);
     },
+    /**
+     * Date
+     */
     d: (n) => {
       d.setDate(d.getDate() + n);
       return new Date(d);
     },
+    /**
+     * Weeks
+     */
     w: (n) => {
       d.setDate(d.getDate() + n * 7);
       return new Date(d);
     },
+    /**
+     * Months
+     */
     mo: (n) => {
       d.setMonth(d.getMonth() + n);
       return new Date(d);
     },
+    /**
+     * Years
+     */
     y: (n) => {
       d.setFullYear(d.getFullYear() + n);
       return new Date(d);
