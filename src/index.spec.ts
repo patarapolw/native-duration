@@ -12,7 +12,11 @@ const maxAcceptable: Partial<Record<DurationUnit, number>> = {
 
 const now = new Date();
 const REPEAT = 1000;
-const isDurationExact = true;
+
+/**
+ * Allow +/- 1 day AND within 5% error
+ */
+const isDurationExact = false;
 
 Array(8)
   .fill(null)
@@ -20,7 +24,9 @@ Array(8)
     /**
      * From minutes to about 30 years' duration
      */
-    describe(`${Duration.of(10 ** (i + 5))} +/- 50%`, () => {
+    describe(`${Duration.of(10 ** (i + 5)).toString({
+      granularity: 2,
+    })} +/- 50%`, () => {
       const inp = Array(REPEAT)
         .fill(null)
         .map(() => {
@@ -39,7 +45,7 @@ Array(8)
         let missed = 0;
 
         inp.map(({ duration }) => {
-          duration.order.map(([k, v]) => {
+          duration.toOrderedDict().map(([k, v]) => {
             const max = maxAcceptable[k];
             if (max && v > max) {
               console.error({ k, v, duration: duration.toString() });
@@ -58,15 +64,14 @@ Array(8)
       it(
         isDurationExact
           ? "duration is precise"
-          : "duration must be within +/- 1 day and within 5% error",
+          : "duration must be within +/- 1 day AND within 5% error",
         () => {
           let missed = 0;
 
           inp.map(({ since, duration, msec }) => {
-            const calculated = duration.order.reduce(
-              (prev, [k, v]) => addDate(prev)[k](-v),
-              new Date(now)
-            );
+            const calculated = duration
+              .toOrderedDict()
+              .reduce((prev, [k, v]) => addDate(prev)[k](-v), new Date(now));
 
             const ratio = (+now - +calculated) / msec;
 
